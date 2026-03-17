@@ -3,7 +3,22 @@
 
 # Log file
 *.log
+# Spring Boot / Java
+target/
+*.class
+*.log
 
+# Sensitive files
+application.properties
+.env
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
 # BlueJ files
 *.ctxt
 
