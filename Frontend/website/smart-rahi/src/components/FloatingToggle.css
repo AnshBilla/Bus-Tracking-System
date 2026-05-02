@@ -1,0 +1,26 @@
+.floating-toggle {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0px 3px 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+.toggle-box {
+  position: fixed;
+  bottom: 80px;
+  right: 25px;
+  width: 250px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0px 3px 15px rgba(0,0,0,0.3);
+  z-index: 999;
+}
