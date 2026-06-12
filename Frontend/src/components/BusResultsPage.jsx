@@ -78,7 +78,9 @@ const BusResultsPage = () => {
     const fetchTrips = async () => {
       setLoading(true);
 try {
-        const res = await fetchWithAuth(`/passenger/journey?fromStopId=${pickupId}&toStopId=${destinationId}`);
+  const encodedFrom = encodeURIComponent(pickup);
+        const encodedTo = encodeURIComponent(destination);
+        const res = await fetchWithAuth(`/passenger/journey?fromStopName=${encodedFrom}&toStopName=${encodedTo}`);
         if (!res.ok) throw new Error("Failed to fetch journeys");
         
         const data = await res.json();
@@ -90,16 +92,13 @@ try {
         setLoading(false);
       }
     };
-    if (pickupId && destinationId) {
+    if (pickup && destination) {
        fetchTrips();
     }
-  }, [pickupId, destinationId]);
-  const handleMapView = (route) => {
+  }, [pickup, destination]);
+ const handleMapView = (tripId) => {
     navigate("/eta", {
-      state: {
-       
-        tripId:tripId,
-      },
+      state: { tripId: tripId },
     });
   };
 
@@ -138,21 +137,18 @@ try {
           </div>
         ) : (
           <AnimatePresence>
-            <motion.ul
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-6"
-            >
-              {results.map((r, i) => (
-                <BusRouteCard
-                  key={r.tripId}
-                  route={r}
-                  index={i}
-                  onViewMap={handleMapView}
-                />
-              ))}
-            </motion.ul>
-          </AnimatePresence>
+  <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+    {results.map((r, i) => (
+      <BusRouteCard
+        key={r.legs?.[0]?.gtfsTripId || i} // Fixed Key
+        option={r}                         // Fixed Prop name (changed 'route' to 'option')
+        index={i}
+        onViewMap={handleMapView}
+      />
+    ))}
+  </motion.ul>
+</AnimatePresence>
+
         )}
       </div>
     </div>

@@ -1,73 +1,24 @@
-# ------------------------
-# OS / System files
-# ------------------------
-.DS_Store
-Thumbs.db
-
-# ------------------------
-# Android / Gradle
-# ------------------------
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-local.properties
-*.iml
-
-# Android Studio / IntelliJ
-.idea/
-*.ipr
-*.iws
-
 # Logs
+logs
 *.log
-
-# Captures
-captures/
-
-# APK / App Bundles
-*.apk
-*.ap_
-*.aab
-
-# NDK / CMake
-obj/
-.cxx/
-.externalNativeBuild/
-
-# Keystore files (do NOT commit signing keys!)
-*.jks
-*.keystore
-
-# ------------------------
-# Node.js / JavaScript
-# ------------------------
-node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
-dist/
-.next/
-out/
+pnpm-debug.log*
+lerna-debug.log*
 
-# ------------------------
-# Java / Spring Boot
-# ------------------------
-target/
-*.class
-*.war
-*.ear
+node_modules
+dist
+dist-ssr
+*.local
 
-# Maven / Gradle Wrapper
-.settings/
-.project
-.classpath
-
-# ------------------------
-# VSCode
-# ------------------------
-.vscode/
-
-# ------------------------
-# Data
-# ------------------------
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

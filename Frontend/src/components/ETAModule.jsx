@@ -62,14 +62,30 @@ const ETAModule = () => {
   const [routeCoords, setRouteCoords] = useState([]); // OSRM route lat-lng pairs
   const [liveBusCoords, setLiveBusCoords] = useState(null);
 
-  const mapTripStops = (t) =>
-    t?.tripStops?.map((ts) => ({
-      id: ts.id,
-      name: ts.stop?.stopName,
-      coords: [ts.stop?.stopLat, ts.stop?.stopLon],
+ // INSIDE ETAModule.jsx (Replace your mapTripStops function around line 42)
+
+  const mapTripStops = (t) => {
+    if (!t) return [];
+    
+    let parsedStops = [];
+    // Handle Spring Boot JSON string format
+    if (typeof t.stops === "string") {
+      try { parsedStops = JSON.parse(t.stops); } catch (e) { console.warn("Failed to parse stops JSON"); }
+    } else if (Array.isArray(t.stops)) {
+      parsedStops = t.stops;
+    } else if (Array.isArray(t.tripStops)) {
+      parsedStops = t.tripStops; // Fallback for old MERN cache
+    }
+
+    return parsedStops.map((ts) => ({
+      id: ts.id ?? ts.stopId ?? Math.random(),
+      // Check for flat structure (new) or nested structure (old)
+      name: ts.stopName ?? ts.stop?.stopName,
+      coords: [ts.stopLat ?? ts.stop?.stopLat, ts.stopLon ?? ts.stop?.stopLon],
       eta: toLocalDateFromTimeStr(ts.expectedArrivalTime),
       original: ts,
-    })) ?? [];
+    }));
+  };
 
   // Fetch updated live ETA every minute
   const fetchLatest = useCallback(async () => {
