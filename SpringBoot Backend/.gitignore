@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Maven / Gradle build outputs
 target/
 build/
@@ -75,4 +75,4 @@ Thumbs.db
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
->>>>>>> 0c3bc03612ade34c61d2836061380c9457a8301d
+
