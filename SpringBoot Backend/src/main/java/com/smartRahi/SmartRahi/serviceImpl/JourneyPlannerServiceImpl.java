@@ -41,15 +41,15 @@ public class JourneyPlannerServiceImpl implements JourneyPlannerService {
      */
     @Override
     @Transactional(readOnly = true)
-    public JourneyPlanResponse planJourney(String fromStopBusinessId, String toStopBusinessId) {
+    public JourneyPlanResponse planJourney(String fromStopName, String toStopName) {
 
-        log.info("Planning journey from {} to {}", fromStopBusinessId, toStopBusinessId);
+        log.info("Planning journey from {} to {}", fromStopName, toStopName);
 
         // 1. Sidhe TripStopRepository se direct trips dhoondhein
-        List<TripStop> startingTripStops = tripStopRepository.findDirectTrips(fromStopBusinessId, toStopBusinessId);
+        List<TripStop> startingTripStops = tripStopRepository.findDirectTripsByName(fromStopName, toStopName);
 
         if (startingTripStops.isEmpty()) {
-            log.info("No direct trips found between {} and {}", fromStopBusinessId, toStopBusinessId);
+            log.info("No direct trips found between {} and {}", fromStopName, toStopName);
             return JourneyPlanResponse.builder().options(Collections.emptyList()).build();
         }
 
@@ -60,7 +60,7 @@ public class JourneyPlannerServiceImpl implements JourneyPlannerService {
 
             // 3. Ussi trip ka 'toStop' (destination) data nikaalein
             Optional<TripStop> toTripStopOpt = fromTripStop.getTrip().getTripStops().stream()
-                    .filter(ts -> ts.getStop().getStopId().equals(toStopBusinessId))
+                    .filter(ts -> ts.getStop().getStopName().equals(toStopName))
                     .findFirst();
 
             if (toTripStopOpt.isPresent()) {
@@ -97,7 +97,7 @@ public class JourneyPlannerServiceImpl implements JourneyPlannerService {
             }
         }
 
-        log.info("Found {} direct options between {} and {}", journeyOptions.size(), fromStopBusinessId, toStopBusinessId);
+        log.info("Found {} direct options between {} and {}", journeyOptions.size(), fromStopName, toStopName);
 
         return JourneyPlanResponse.builder()
                 .options(journeyOptions)

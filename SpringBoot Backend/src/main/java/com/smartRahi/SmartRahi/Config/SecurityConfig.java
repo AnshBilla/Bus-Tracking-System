@@ -74,6 +74,7 @@ public class SecurityConfig {
                         // ----------------------------------------------------------------
                         // ADMIN-ONLY ENDPOINTS (Infrastructure Management)
                         // ----------------------------------------------------------------
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/trips/**").hasAnyRole("ADMIN", "PASSENGER", "GUEST")
 
                         // Merge conflict fix: Sirf ADMIN ko access dena behtar security hai
                         .requestMatchers("/api/buses/**").hasRole("ADMIN")

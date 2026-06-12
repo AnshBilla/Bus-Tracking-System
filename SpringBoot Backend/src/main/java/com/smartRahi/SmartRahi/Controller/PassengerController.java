@@ -81,10 +81,10 @@ public class PassengerController {
     @GetMapping("/journey")
     @PreAuthorize("hasAnyRole('PASSENGER', 'GUEST')")
     public ResponseEntity<JourneyPlanResponse> planJourney(
-            @RequestParam String fromStopId, // Business ID of origin stop
-            @RequestParam String toStopId    // Business ID of destination stop
+            @RequestParam String fromStopName, // <-- Changed to Name
+            @RequestParam String toStopName    // <-- Changed to Name
     ) {
-        JourneyPlanResponse response = journeyPlannerService.planJourney(fromStopId, toStopId);
+        JourneyPlanResponse response = journeyPlannerService.planJourney(fromStopName, toStopName);
 
         // Response check
         if (response.getOptions() == null || response.getOptions().isEmpty()) {

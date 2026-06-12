@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface TripService {
     TripResponse createTrip(TripRequest request);
     TripResponse getTripById(UUID tripId);
+    TripResponse getTripByGtfsId(String gtfsTripId);
     List<TripResponse> getAllTrips();
     TripResponse updateTrip(UUID tripId, TripRequest request);
     void deleteTrip(UUID tripId);

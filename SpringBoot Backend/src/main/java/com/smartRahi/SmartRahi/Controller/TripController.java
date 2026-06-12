@@ -22,8 +22,15 @@ public class TripController {
     }
 
     @GetMapping("/{tripId}")
-    public TripResponse getTripById(@PathVariable UUID tripId) {
-        return tripService.getTripById(tripId);
+    public TripResponse getTripById(@PathVariable String tripId) {
+        try {
+            // Agar Admin Panel ne UUID bheja hai toh ye chalega
+            UUID uuid = UUID.fromString(tripId);
+            return tripService.getTripById(uuid);
+        } catch (IllegalArgumentException e) {
+            // Agar Frontend ne "10205" bheja (jo UUID nahi hai), toh ye catch hoke chalega!
+            return tripService.getTripByGtfsId(tripId);
+        }
     }
 
     @GetMapping

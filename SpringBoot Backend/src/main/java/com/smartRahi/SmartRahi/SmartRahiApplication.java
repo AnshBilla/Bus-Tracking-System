@@ -43,7 +43,7 @@ public class SmartRahiApplication {
 
 			// 1. Set the path to your UNZIPPED GTFS folder (or the .zip file)
 			//    (Remember to use double backslashes \\ on Windows)
-			String gtfsPath = "C:\\Users\\anmol\\Downloads\\DATASET";
+			String gtfsPath = "C:\\Users\\Aryan Choudhary\\Downloads\\Bangalore Metropolitan Transport Corporation (BMTC) (1).zip";
 
 			// 2. Do you want to use Nominatim to find the city name?
 			boolean useGeocoding = true;

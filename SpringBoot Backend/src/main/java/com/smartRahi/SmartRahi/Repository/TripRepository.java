@@ -16,6 +16,7 @@ import java.util.UUID;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, UUID> {
 
+
     // Live buses dhoondhne ke liye (BusRealtimeService)
     List<Trip> findByStatusAndLastLocationUpdateAfter(TripStatus status, LocalDateTime threshold);
 

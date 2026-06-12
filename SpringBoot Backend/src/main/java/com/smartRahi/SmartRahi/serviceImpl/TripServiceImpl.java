@@ -48,6 +48,12 @@ public class TripServiceImpl implements TripService {
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
         return TripMapper.toResponse(trip);
     }
+    @Override
+    public TripResponse getTripByGtfsId(String gtfsTripId) {
+        Trip trip = tripRepository.findByGtfsTripId(gtfsTripId)
+                .orElseThrow(() -> new RuntimeException("Trip with GTFS ID not found"));
+        return TripMapper.toResponse(trip);
+    }
 
     @Override
     public List<TripResponse> getAllTrips() {

@@ -10,11 +10,11 @@ public interface JourneyPlannerService {
      * PHASE 1:
      * Finds potential journeys between two stops.
      *
-     * @param fromStopBusinessId The business ID (String) of the starting stop.
-     * @param toStopBusinessId The business ID (String) of the destination stop.
+     * @param fromStopName The business ID (String) of the starting stop.
+     * @param toStopName The business ID (String) of the destination stop.
      * @return A JourneyPlanResponse containing direct route options, if any.
      */
-    JourneyPlanResponse planJourney(String fromStopBusinessId, String toStopBusinessId);
+    JourneyPlanResponse planJourney(String fromStopName, String toStopName);
 
     /**
      * PHASE 2:
