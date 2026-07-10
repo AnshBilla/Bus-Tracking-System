@@ -1,0 +1,17 @@
+
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+#root {
+  width: 100vw;
+  margin: 0 ;
+  padding: 0;
+}
+
+
+
+
+
+.read-the-docs {
+color: #888;
+}

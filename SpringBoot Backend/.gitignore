@@ -1,8 +1,3 @@
-# Compiled class file
-*.class
-
-# Log file
-*.log
 
 # Maven / Gradle build outputs
 target/
@@ -12,15 +7,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# Sensitive files
-application-example.properties
-.env
-*.env
-
-# Node
-node_modules/
-
-# IDE files
 ### STS ###
 .apt_generated
 .classpath
@@ -32,7 +18,6 @@ node_modules/
 
 ### IntelliJ IDEA ###
 .idea
-.idea/
 *.iws
 *.iml
 *.ipr
@@ -47,17 +32,38 @@ node_modules/
 ### VS Code ###
 .vscode/
 
+### Node / Env files (from remote repo default .gitignore) ###
+node_modules/
+*.env
+=======
+# Compiled class file
+*.class
+
+# Log file
+*.log
+# Spring Boot / Java
+target/
+*.class
+*.log
+
+# Sensitive files
+application.properties
+.env
+
+# IDE files
+.idea/
+.vscode/
+
 # OS files
 .DS_Store
 Thumbs.db
-
 # BlueJ files
 *.ctxt
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files
+# Package Files #
 *.jar
 *.war
 *.nar
@@ -66,6 +72,7 @@ Thumbs.db
 *.tar.gz
 *.rar
 
-# virtual machine crash logs
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
