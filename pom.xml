@@ -28,10 +28,6 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.5.0</version> </dependency>
-		<dependency>
 			<groupId>org.mobilitydata</groupId>
 			<artifactId>gtfs-realtime-bindings</artifactId>
 			<version>0.0.8</version> </dependency>
