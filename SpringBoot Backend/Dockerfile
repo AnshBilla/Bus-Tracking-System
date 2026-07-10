@@ -1,22 +1,23 @@
-# Importing JDK 17 and copying required files
-FROM openjdk:17-jdk AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src src
+# ---------- Build Stage ----------
+FROM eclipse-temurin:17-jdk AS build
 
-# Copy Maven wrapper
+WORKDIR /app
+
+COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
+COPY src src
 
-# Set execution permission for the Maven wrapper
-RUN chmod +x ./mvnw
+RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
-# Stage 2: Create the final Docker image using OpenJDK 17
-FROM openjdk:17-jdk
-VOLUME /tmp
+# ---------- Runtime Stage ----------
+FROM eclipse-temurin:17-jre
 
-# Copy the JAR from the build stage
+WORKDIR /
+
 COPY --from=build /app/target/*.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+
 EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","app.jar"]
