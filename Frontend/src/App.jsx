@@ -10,7 +10,7 @@ import LoginSignup from './components/loginSignup.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import FavouriteTrips from './components/FavouriteTrips.jsx'  
 import FloatingToggle from './components/FloatingToggle.jsx'
-
+import AdminDashboard from './pages/AdminDashboard.jsx'
 
 // --- HomeTag function jismein Hero + ETAModule hai ---
 function HomeTag() {
@@ -50,6 +50,9 @@ function App() {
 
         {/* Bus results page */}
         <Route path="/buses" element={<BusResultsPage />} />
+        
+        {/* Admin Dashboard */}
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
 
       <Footer />

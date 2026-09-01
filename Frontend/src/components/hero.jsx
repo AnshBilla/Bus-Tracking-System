@@ -16,7 +16,6 @@ import { fetchWithAuth } from "../config/api";
 const Hero = () => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
-  const [tripId, setTripId] = useState("");
   const [message, setMessage] = useState("");
   const [nearbyStops, setNearbyStops] = useState([]);
   const [mapNearbyStops, setMapNearbyStops] = useState([]);
@@ -27,7 +26,7 @@ const Hero = () => {
   // 1. Fetch nearby stops (Cleaned UI, No Duplicates)
   const fetchNearbyStops = useCallback(async (lat, lon) => {
     try {
-      const res = await fetchWithAuth(`/passenger/stops/near?lat=${lat}&lon=${lon}&radius=1000&page=0&size=20`);
+      const res = await fetchWithAuth(`/passenger/stops/near?lat=${lat}&lon=${lon}&radius=1000&pageNumber=0&pageSize=20`);
       if (!res.ok) throw new Error("Failed to fetch nearby stops");
       const data = await res.json();
 
@@ -97,25 +96,7 @@ const Hero = () => {
 
   // Handle Search
   const handleRequest = async () => {
-    if (tripId.trim()) {
-      setMessage(`🔍 Searching trip ID: ${tripId}...`);
-      try {
-        const res = await fetchWithAuth(`/trips/${tripId.trim()}`);
-        if (!res.ok) {
-          setMessage("❌ Trip not found!");
-          return;
-        }
-        const tripData = await res.json();
-        navigate("/eta", {
-          state: {
-            tripId: tripId.trim(),
-            tripData,
-          },
-        });
-      } catch {
-        setMessage("❌ Something went wrong. Try again!");
-      }
-    } else if (pickup && destination) {
+    if (pickup && destination) {
       setMessage("🚍 Fetching your buses...");
       navigate("/buses", {
         state: {
@@ -126,7 +107,7 @@ const Hero = () => {
         },
       });
     } else {
-      setMessage("⚠ Please enter a Trip ID OR select both stops.");
+      setMessage("⚠ Please select both starting and destination stops.");
     }
   };
 
@@ -189,24 +170,6 @@ const Hero = () => {
             </button>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow border">
-            <label className="text-sm font-semibold">Track by Trip ID</label>
-            <input
-              value={tripId}
-              onChange={(e) => {
-                setTripId(e.target.value);
-                setPickup(null);
-                setDestination(null);
-              }}
-              className="w-full p-3 border rounded mt-2"
-            />
-            <button
-              onClick={handleRequest}
-              className="w-full mt-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Track Trip
-            </button>
-          </div>
 
           {message && (
             <p className="text-blue-600 text-center">{message}</p>

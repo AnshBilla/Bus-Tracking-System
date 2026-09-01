@@ -58,10 +58,12 @@ const ETAModule = ({ trip, onClose }) => {
   const fetchStops = useCallback(() => {
     let parsed = [];
 
-    if (typeof trip.stops === "string") {
+    if (typeof trip.stops === "string" && trip.stops) {
       try {
         parsed = JSON.parse(trip.stops);
       } catch {}
+    } else if (Array.isArray(trip.tripStops)) {
+      parsed = trip.tripStops;
     } else {
       parsed = trip.stops || [];
     }
@@ -69,8 +71,8 @@ const ETAModule = ({ trip, onClose }) => {
     const mapped = parsed
       .sort((a, b) => a.stopSequence - b.stopSequence)
       .map((s) => ({
-        name: s.stopName,
-        coords: [s.stopLat, s.stopLon],
+        name: s.stopName ?? s.stop?.stopName,
+        coords: [s.stopLat ?? s.stop?.stopLat, s.stopLon ?? s.stop?.stopLon],
         time: s.expectedArrivalTime
           ? toLocalDate(s.expectedArrivalTime)
           : null,
@@ -163,8 +165,12 @@ const FavouriteTrips = () => {
             const trip = await res.json();
 
             let stops = [];
-            if (typeof trip.stops === "string") {
-              stops = JSON.parse(trip.stops);
+            if (typeof trip.stops === "string" && trip.stops) {
+              try {
+                stops = JSON.parse(trip.stops);
+              } catch(e) {}
+            } else if (Array.isArray(trip.tripStops)) {
+              stops = trip.tripStops;
             }
 
             const first = stops[0];
@@ -176,8 +182,8 @@ const FavouriteTrips = () => {
 
             return {
               id: trip.tripId,
-              pickup: first?.stopName,
-              destination: last?.stopName,
+              pickup: first?.stopName ?? first?.stop?.stopName,
+              destination: last?.stopName ?? last?.stop?.stopName,
               stopsCount: stops.length,
               eta,
               raw: trip,

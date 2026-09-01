@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchWithAuth } from "../config/api";
+import Speedometer from "./Speedometer";
 
 // const BASE = "https://smart-rahi-gun5.onrender.com/api";
 
@@ -61,6 +62,7 @@ const ETAModule = () => {
   const [map, setMap] = useState(null);
   const [routeCoords, setRouteCoords] = useState([]); // OSRM route lat-lng pairs
   const [liveBusCoords, setLiveBusCoords] = useState(null);
+  const [isInsideBus, setIsInsideBus] = useState(null); // null = unasked, true = Yes, false = No
 
  // INSIDE ETAModule.jsx (Replace your mapTripStops function around line 42)
 
@@ -87,12 +89,14 @@ const ETAModule = () => {
     }));
   };
 
+  // Extract routeId safely from either trip or tripData
+  const activeRouteId = trip?.routeId || trip?.route?.routeId || tripData?.routeId || tripData?.route?.routeId;
+
   // Fetch updated live ETA every minute
   const fetchLatest = useCallback(async () => {
     if (!tripId) return;
     try {
-      const routeId = tripData?.routeId || tripData?.route?.routeId;
-     const liveRes = await fetchWithAuth(`/passenger/buses/live${routeId ? `?routeId=${routeId}` : ''}`);
+     const liveRes = await fetchWithAuth(`/passenger/buses/live${activeRouteId ? `?routeId=${activeRouteId}` : ''}`);
      if (liveRes.ok) {
          const liveBuses = await liveRes.json();
          // Find your specific bus from the active buses
@@ -106,14 +110,33 @@ const ETAModule = () => {
     } catch (err) {
       console.warn("fetchLatest error:", err);
     }
-  }, [tripId, tripData]);
+  }, [tripId, activeRouteId]);
 
   useEffect(() => {
-    if (tripData) setStops(mapTripStops(tripData));
+    const fetchTripDetails = async () => {
+      if (tripData) {
+        setStops(mapTripStops(tripData));
+      } else if (tripId && !trip) {
+        try {
+          const res = await fetchWithAuth(`/trips/${tripId}`);
+          if (res.ok) {
+            const data = await res.json();
+            setTrip(data);
+            setStops(mapTripStops(data));
+          }
+        } catch (err) {
+          console.error("Failed to fetch trip data:", err);
+        }
+      }
+    };
+    fetchTripDetails();
+  }, [tripData, tripId, trip]);
+
+  useEffect(() => {
     fetchLatest();
     const id = setInterval(fetchLatest, 60000);
     return () => clearInterval(id);
-  }, [fetchLatest, tripData]);
+  }, [fetchLatest]);
 
   // When stops change, request OSRM route (single request) and set routeCoords only when OSRM returns
   useEffect(() => {
@@ -285,6 +308,19 @@ return (
           </MapContainer>
         </div>
       </div>
+      
+      {/* Ask "Are you inside this bus?" */}
+      {isInsideBus === null && (
+         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-6 py-4 rounded-full shadow-2xl border-2 border-blue-500 z-[999] flex items-center space-x-4 animate-bounce">
+           <span className="font-semibold text-gray-800 hidden md:block">Are you inside this bus?</span>
+           <span className="font-semibold text-gray-800 md:hidden">Inside bus?</span>
+           <button onClick={() => setIsInsideBus(true)} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-700 shadow-md">Yes</button>
+           <button onClick={() => setIsInsideBus(false)} className="px-4 py-1.5 bg-gray-200 text-gray-700 rounded-full text-sm font-bold hover:bg-gray-300 shadow-sm">No</button>
+         </div>
+      )}
+
+      {/* Render Speedometer if Yes */}
+      {isInsideBus === true && <Speedometer onClose={() => setIsInsideBus(false)} />}
     </div>
   );
 };

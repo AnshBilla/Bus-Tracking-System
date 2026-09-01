@@ -4,6 +4,31 @@ import { LogIn, UserPlus, Mail, Lock, User, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../config/api";
 
+const InputField = ({ id, label, type, placeholder, Icon, value, onChange }) => (
+  <div className="relative">
+    <label htmlFor={id} className="block text-sm font-semibold text-gray-700 mb-1">
+      {label}
+    </label>
+    <div className="relative">
+      <input
+        id={id}
+        type={type}
+        required
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-400
+                    outline-none transition-all duration-200"
+      />
+      <Icon
+        size={20}
+        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+      />
+    </div>
+  </div>
+);
+
 const LoginSignup = () => {
   const [isLoginView, setIsLoginView] = useState(true);
   const navigate = useNavigate();
@@ -62,6 +87,7 @@ const LoginSignup = () => {
       
       // Save Token and Redirect
       localStorage.setItem("accessToken", data.accessToken);
+      window.dispatchEvent(new Event("auth-change"));
       navigate("/"); 
       
     } catch (err) {
@@ -70,31 +96,6 @@ const LoginSignup = () => {
       setLoading(false);
     }
   };
-
-  const InputField = ({ id, label, type, placeholder, Icon }) => (
-    <div className="relative">
-      <label htmlFor={id} className="block text-sm font-semibold text-gray-700 mb-1">
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          id={id}
-          type={type}
-          required
-          placeholder={placeholder}
-          value={formData[id]}
-          onChange={handleInputChange}
-          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg
-                      focus:border-blue-500 focus:ring-2 focus:ring-blue-400
-                      outline-none transition-all duration-200"
-        />
-        <Icon
-          size={20}
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-        />
-      </div>
-    </div>
-  );
 
   const GoogleIcon = () => (
     <svg viewBox="0 0 48 48" className="w-5 h-5 mr-3">
@@ -179,7 +180,7 @@ const LoginSignup = () => {
               {/* Form */}
               <form className="space-y-4" onSubmit={handleSubmit}>
                 {!isLoginView && (
-                  <InputField id="fullName" label="Full Name" type="text" placeholder="John Smith" Icon={User} />
+                  <InputField id="fullName" label="Full Name" type="text" placeholder="John Smith" Icon={User} value={formData.fullName} onChange={handleInputChange} />
                 )}
                 <InputField
                   id="username"
@@ -187,16 +188,18 @@ const LoginSignup = () => {
                   type="text"
                   placeholder="johnsmith007"
                   Icon={User}
+                  value={formData.username}
+                  onChange={handleInputChange}
                 />
                 {!isLoginView && (
                   <>
-                    <InputField id="email" label="Email Address" type="email" placeholder="john@example.com" Icon={Mail} />
-                    <InputField id="phone" label="Phone Number" type="tel" placeholder="+91 9876543210" Icon={Phone} />
+                    <InputField id="email" label="Email Address" type="email" placeholder="john@example.com" Icon={Mail} value={formData.email} onChange={handleInputChange} />
+                    <InputField id="phone" label="Phone Number" type="tel" placeholder="+91 9876543210" Icon={Phone} value={formData.phone} onChange={handleInputChange} />
                   </>
                 )}
-                <InputField id="password" label="Password" type="password" placeholder="********" Icon={Lock} />
+                <InputField id="password" label="Password" type="password" placeholder="********" Icon={Lock} value={formData.password} onChange={handleInputChange} />
                 {!isLoginView && (
-                  <InputField id="confirmPassword" label="Confirm Password" type="password" placeholder="Confirm your password" Icon={Lock} />
+                  <InputField id="confirmPassword" label="Confirm Password" type="password" placeholder="Confirm your password" Icon={Lock} value={formData.confirmPassword} onChange={handleInputChange} />
                 )}
 
                 {isLoginView && (

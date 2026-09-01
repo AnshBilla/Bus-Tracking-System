@@ -1,9 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion"; // optional for smooth animation
+import { useLocation } from "react-router-dom";
+import { fetchWithAuth } from "../config/api";
 
 const FloatingToggle = () => {
+  const { state } = useLocation();
+  const tripData = state?.tripData ?? null;
+  const tripId = state?.tripId || tripData?.gtfsTripId || tripData?.tripId;
+
   const [insideBus, setInsideBus] = useState(false);
   const [open, setOpen] = useState(false);
+  const watchIdRef = useRef(null);
+
+  useEffect(() => {
+    if (insideBus && tripId) {
+      if ("geolocation" in navigator) {
+        watchIdRef.current = navigator.geolocation.watchPosition(
+          async (position) => {
+            const { latitude, longitude, speed, heading } = position.coords;
+            try {
+              await fetchWithAuth(`/passenger/buses/live/location?tripId=${tripId}`, {
+                method: "POST",
+                body: JSON.stringify({
+                  latitude,
+                  longitude,
+                  speed,
+                  heading,
+                  timestamp: new Date().toISOString()
+                })
+              });
+              console.log("Crowd-sourced location sent.");
+            } catch (err) {
+              console.error("Failed to send crowd-sourced location", err);
+            }
+          },
+          (error) => {
+            console.error("Error watching position:", error);
+            setInsideBus(false); // turn off if permission denied
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser");
+        setInsideBus(false);
+      }
+    } else {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+    }
+
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, [insideBus, tripId]);
+
+  if (!tripId) return null; // Hide toggle if not on a specific trip view
 
   return (
     <>

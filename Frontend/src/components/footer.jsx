@@ -11,6 +11,7 @@ import {
   Youtube,
   ChevronDown
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const NavLink = ({ children, to, onClick, className }) => (
   <Link
@@ -137,6 +138,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-gray-100 text-xs text-gray-500 space-y-4 md:space-y-0">
           <p>© 2025 Smartराही. All Rights Reserved</p>
           <div className="flex space-x-6 ml-auto">
+            <Link to="/admin" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">Staff Setup</Link>
             <a href="#" className="hover:text-black font-semibold transition-colors" onClick={(e) => e.preventDefault()}>Terms and Conditions</a>
             <a href="#" className="hover:text-black font-semibold transition-colors" onClick={(e) => e.preventDefault()}>Privacy</a>
             <a href="#" className="hover:text-black font-semibold transition-colors" onClick={(e) => e.preventDefault()}>Cookies</a>

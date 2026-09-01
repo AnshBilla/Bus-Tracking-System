@@ -1,5 +1,20 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import BASE_URL from '../config/api';
+
+// Helper to parse JWT
+const parseJwt = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
 
 // Reusable NavLink
 const NavLink = ({ children, to, onClick, className }) => (
@@ -24,8 +39,74 @@ const Logo = () => (
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   const handleCloseMenu = () => setIsOpen(false);
+
+  useEffect(() => {
+    const checkUserToken = () => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        const decoded = parseJwt(token);
+        let isGuest = false;
+
+        if (decoded) {
+          // String checks
+          if (typeof decoded.role === 'string' && decoded.role.toLowerCase().includes('guest')) {
+            isGuest = true;
+          }
+          if (typeof decoded.roles === 'string' && decoded.roles.toLowerCase().includes('guest')) {
+            isGuest = true;
+          }
+          // Array checks
+          if (Array.isArray(decoded.roles)) {
+            const hasGuest = decoded.roles.some(r => 
+              (typeof r === 'string' && r.toLowerCase().includes('guest')) || 
+              (r.authority && r.authority.toLowerCase().includes('guest'))
+            );
+            if (hasGuest) isGuest = true;
+          }
+        }
+
+        if (decoded && !isGuest) {
+          setUser(decoded);
+        } else {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+    };
+
+    // Check on mount
+    checkUserToken();
+
+    // Listen to changes from login form
+    window.addEventListener("auth-change", checkUserToken);
+    
+    return () => window.removeEventListener("auth-change", checkUserToken);
+  }, []);
+
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (refreshToken) {
+      try {
+        await fetch(`${BASE_URL}/auth/logout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken })
+        });
+      } catch (e) {
+        console.warn("Logout API failed, clearing local tokens anyway");
+      }
+    }
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    setUser(null);
+    navigate("/");
+    window.location.reload();
+  };
 
   return (
     <nav className="w-full border-b border-gray-100 shadow-sm bg-white/30 fixed top-0 z-50 backdrop-blur-md">
@@ -48,12 +129,24 @@ const Navbar = () => {
 
           {/* Desktop Action Buttons */}
           <div className="hidden md:flex items-center space-x-6">
-            <NavLink
-              to="/loginSignup"
-              className="px-6 py-2 bg-black text-white hover:bg-blue-600 transition-colors duration-200 focus:outline-none rounded-lg"
-            >
-              Log In
-            </NavLink>
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-semibold text-gray-700">Hi, {user.sub || user.username || "User"}</span>
+                <button
+                  onClick={handleLogout}
+                  className="px-6 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors duration-200 focus:outline-none rounded-lg font-semibold"
+                >
+                  Log Out
+                </button>
+              </div>
+            ) : (
+              <NavLink
+                to="/loginSignup"
+                className="px-6 py-2 bg-black text-white hover:bg-blue-600 transition-colors duration-200 focus:outline-none rounded-lg"
+              >
+                Log In
+              </NavLink>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -90,14 +183,27 @@ const Navbar = () => {
 
             {/* Mobile Action Buttons */}
             <div className="mt-3 space-y-2">
-              <NavLink
-                to="/loginSignup"
-                onClick={handleCloseMenu}
-                className="w-full px-6 py-2 bg-black text-white hover:bg-sky-700 rounded-lg transition-colors duration-200 text-center"
-              >
-                Log In
-              </NavLink>
-           
+              {user ? (
+                <>
+                  <div className="px-6 py-2 text-gray-700 font-semibold text-center">
+                    Hi, {user.sub || user.username || "User"}
+                  </div>
+                  <button
+                    onClick={() => { handleCloseMenu(); handleLogout(); }}
+                    className="w-full px-6 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors duration-200 text-center font-semibold"
+                  >
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <NavLink
+                  to="/loginSignup"
+                  onClick={handleCloseMenu}
+                  className="w-full px-6 py-2 bg-black text-white hover:bg-sky-700 rounded-lg transition-colors duration-200 text-center"
+                >
+                  Log In
+                </NavLink>
+              )}
             </div>
           </div>
         </div>
