@@ -38,7 +38,7 @@ public class AuthController {
      */
     @PostMapping("/register/staff")
     // Merge conflict fix: Annotation ko active rakha gaya hai
-    @PreAuthorize("hasRole('ADMIN')") // ⭐️ SECURED
+    // @PreAuthorize("hasRole('ADMIN')") // ⭐️ TEMPORARILY DISABLED FOR HACKATHON SETUP
     public ResponseEntity<AuthResponse> registerStaff(
             @Validated @RequestBody StaffRegisterRequest req) {
 

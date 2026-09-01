@@ -78,6 +78,7 @@ public class SecurityConfig {
 
                         // Merge conflict fix: Sirf ADMIN ko access dena behtar security hai
                         .requestMatchers("/api/buses/**").hasRole("ADMIN")
+                        .requestMatchers("/api/cities/**").hasRole("ADMIN")
                         .requestMatchers("/api/vehicle/update/**").permitAll() // GPS module ke liye access
                         .requestMatchers("/api/routes/**").hasRole("ADMIN")
                         .requestMatchers("/api/stops/**").hasRole("ADMIN")
