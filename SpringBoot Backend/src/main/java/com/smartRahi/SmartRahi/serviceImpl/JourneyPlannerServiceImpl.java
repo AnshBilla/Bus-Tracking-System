@@ -46,9 +46,9 @@ public class JourneyPlannerServiceImpl implements JourneyPlannerService {
         log.info("Planning journey from {} to {}", fromStopName, toStopName);
 
         // 1. Sidhe TripStopRepository se direct trips dhoondhein
-        List<TripStop> startingTripStops = tripStopRepository.findDirectTripsByName(fromStopName, toStopName);
+        List<Object[]> tripPairs = tripStopRepository.findDirectTripPairsByName(fromStopName, toStopName);
 
-        if (startingTripStops.isEmpty()) {
+        if (tripPairs.isEmpty()) {
             log.info("No direct trips found between {} and {}", fromStopName, toStopName);
             return JourneyPlanResponse.builder().options(Collections.emptyList()).build();
         }
@@ -56,45 +56,38 @@ public class JourneyPlannerServiceImpl implements JourneyPlannerService {
         List<JourneyOption> journeyOptions = new ArrayList<>();
 
         // 2. Har mili hui trip ke liye, JourneyOption banayein
-        for (TripStop fromTripStop : startingTripStops) {
+        for (Object[] pair : tripPairs) {
+            TripStop fromTripStop = (TripStop) pair[0];
+            TripStop toTripStop = (TripStop) pair[1];
 
-            // 3. Ussi trip ka 'toStop' (destination) data nikaalein
-            Optional<TripStop> toTripStopOpt = fromTripStop.getTrip().getTripStops().stream()
-                    .filter(ts -> ts.getStop().getStopName().equals(toStopName))
-                    .findFirst();
+            // 4. Safar ka samay (duration) calculate karein
+            long durationMinutes = Duration.between(
+                    fromTripStop.getExpectedDepartureTime(),
+                    toTripStop.getExpectedArrivalTime()
+            ).toMinutes();
 
-            if (toTripStopOpt.isPresent()) {
-                TripStop toTripStop = toTripStopOpt.get();
+            // 5. JourneyLeg (safar ka hissa) banayein
+            JourneyLeg leg = JourneyLeg.builder()
+                    .gtfsTripId(fromTripStop.getTrip().getGtfsTripId())
+                    .routeId(fromTripStop.getTrip().getRoute().getRouteId())
+                    .routeName(fromTripStop.getTrip().getRoute().getRouteName())
+                    .fromStopId(fromTripStop.getStop().getStopId())
+                    .fromStopName(fromTripStop.getStop().getStopName())
+                    .toStopId(toTripStop.getStop().getStopId())
+                    .toStopName(toTripStop.getStop().getStopName())
+                    .estimatedDeparture(fromTripStop.getExpectedDepartureTime().format(TIME_FORMATTER))
+                    .estimatedArrival(toTripStop.getExpectedArrivalTime().format(TIME_FORMATTER))
+                    .liveBuses(Collections.emptyList()) // Phase 3 mein live bus data yahaan aayega
+                    .build();
 
-                // 4. Safar ka samay (duration) calculate karein
-                long durationMinutes = Duration.between(
-                        fromTripStop.getExpectedDepartureTime(),
-                        toTripStop.getExpectedArrivalTime()
-                ).toMinutes();
+            // 6. JourneyOption (poora plan) banayein
+            JourneyOption option = JourneyOption.builder()
+                    .type("DIRECT")
+                    .legs(Collections.singletonList(leg))
+                    .estimatedDuration(durationMinutes + " mins")
+                    .build();
 
-                // 5. JourneyLeg (safar ka hissa) banayein
-                JourneyLeg leg = JourneyLeg.builder()
-                        .gtfsTripId(fromTripStop.getTrip().getGtfsTripId())
-                        .routeId(fromTripStop.getTrip().getRoute().getRouteId())
-                        .routeName(fromTripStop.getTrip().getRoute().getRouteName())
-                        .fromStopId(fromTripStop.getStop().getStopId())
-                        .fromStopName(fromTripStop.getStop().getStopName())
-                        .toStopId(toTripStop.getStop().getStopId())
-                        .toStopName(toTripStop.getStop().getStopName())
-                        .estimatedDeparture(fromTripStop.getExpectedDepartureTime().format(TIME_FORMATTER))
-                        .estimatedArrival(toTripStop.getExpectedArrivalTime().format(TIME_FORMATTER))
-                        .liveBuses(Collections.emptyList()) // Phase 3 mein live bus data yahaan aayega
-                        .build();
-
-                // 6. JourneyOption (poora plan) banayein
-                JourneyOption option = JourneyOption.builder()
-                        .type("DIRECT")
-                        .legs(Collections.singletonList(leg))
-                        .estimatedDuration(durationMinutes + " mins")
-                        .build();
-
-                journeyOptions.add(option);
-            }
+            journeyOptions.add(option);
         }
 
         log.info("Found {} direct options between {} and {}", journeyOptions.size(), fromStopName, toStopName);

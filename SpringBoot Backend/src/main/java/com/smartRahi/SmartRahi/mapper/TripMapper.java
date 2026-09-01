@@ -27,13 +27,31 @@ public class TripMapper {
     public static TripResponse toResponse(Trip trip) {
         return TripResponse.builder()
                 .tripId(trip.getTripId().toString())
-                .routeId(trip.getRoute() != null ? trip.getRoute().getRouteId().toString() : null)
+                .routeId(trip.getRoute() != null ? trip.getRoute().getRouteId() : null)
                 .headsign(trip.getHeadsign())
                 .direction(trip.getDirection())
                 .busId(trip.getBus() != null ? trip.getBus().getBusId().toString() : null)
-
                 .driverId(trip.getDriver() != null ? trip.getDriver().getId().toString() : null)
                 .stops(trip.getStops())
+                .route(trip.getRoute() != null ? java.util.Map.of(
+                        "routeId", trip.getRoute().getRouteId(),
+                        "routeName", trip.getRoute().getRouteName()
+                ) : null)
+                .tripStops(trip.getTripStops() != null ? trip.getTripStops().stream().map(ts -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", ts.getId());
+                    map.put("stopSequence", ts.getStopSequence());
+                    map.put("expectedArrivalTime", ts.getExpectedArrivalTime() != null ? ts.getExpectedArrivalTime().toLocalTime().toString() : null);
+                    if (ts.getStop() != null) {
+                        java.util.Map<String, Object> stopMap = new java.util.HashMap<>();
+                        stopMap.put("stopId", ts.getStop().getStopId());
+                        stopMap.put("stopName", ts.getStop().getStopName());
+                        stopMap.put("stopLat", ts.getStop().getStopLat());
+                        stopMap.put("stopLon", ts.getStop().getStopLon());
+                        map.put("stop", stopMap);
+                    }
+                    return map;
+                }).collect(java.util.stream.Collectors.toList()) : null)
                 .build();
     }
 }

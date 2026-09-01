@@ -39,15 +39,27 @@ public interface TripStopRepository extends JpaRepository<TripStop, Long> { // A
             @Param("toStopName") String toStopName
     );
 
+    @Query("SELECT ts1, ts2 FROM TripStop ts1 " +
+            "JOIN TripStop ts2 ON ts1.trip.tripId = ts2.trip.tripId " +
+            "JOIN FETCH ts1.trip t JOIN FETCH t.route JOIN FETCH ts1.stop JOIN FETCH ts2.stop " +
+            "WHERE ts1.stop.stopName = :fromStopName " +
+            "AND ts2.stop.stopName = :toStopName " +
+            "AND ts1.stopSequence < ts2.stopSequence")
+    List<Object[]> findDirectTripPairsByName(
+            @Param("fromStopName") String fromStopName,
+            @Param("toStopName") String toStopName
+    );
+
     Optional<TripStop> findByTrip_GtfsTripIdAndStop_StopId(String gtfsTripId, String stopId);
 
     /**
      * Kisi specific trip ke liye, do sequence numbers ke beech ke saare stops laata hai.
      */
+    @Query("SELECT ts FROM TripStop ts JOIN FETCH ts.stop WHERE ts.trip.gtfsTripId = :gtfsTripId AND ts.stopSequence BETWEEN :fromSequence AND :toSequence ORDER BY ts.stopSequence ASC")
     List<TripStop> findByTrip_GtfsTripIdAndStopSequenceBetweenOrderByStopSequenceAsc(
-            String gtfsTripId,
-            int fromSequence,
-            int toSequence
+            @Param("gtfsTripId") String gtfsTripId,
+            @Param("fromSequence") int fromSequence,
+            @Param("toSequence") int toSequence
     );
 
 }

@@ -12,16 +12,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional; // Is import ko rakha gaya hai
 import java.util.UUID;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, UUID> {
 
 
     // Live buses dhoondhne ke liye (BusRealtimeService)
-    List<Trip> findByStatusAndLastLocationUpdateAfter(TripStatus status, LocalDateTime threshold);
+    @Query("SELECT t FROM Trip t JOIN FETCH t.bus JOIN FETCH t.route LEFT JOIN FETCH t.nextStop WHERE t.status = :status AND t.lastLocationUpdate > :threshold")
+    List<Trip> findByStatusAndLastLocationUpdateAfter(@Param("status") TripStatus status, @Param("threshold") LocalDateTime threshold);
 
     // Kisi route par live buses dhoondhne ke liye (BusRealtimeService)
-    List<Trip> findByStatusAndRouteAndLastLocationUpdateAfter(TripStatus status, Route route, LocalDateTime threshold);
+    @Query("SELECT t FROM Trip t JOIN FETCH t.bus JOIN FETCH t.route LEFT JOIN FETCH t.nextStop WHERE t.status = :status AND t.route = :route AND t.lastLocationUpdate > :threshold")
+    List<Trip> findByStatusAndRouteAndLastLocationUpdateAfter(@Param("status") TripStatus status, @Param("route") Route route, @Param("threshold") LocalDateTime threshold);
 
     // Merge conflict fix: Yeh method rakha gaya hai (GTFS ID se dhoondhne ke liye)
     Optional<Trip> findByGtfsTripId(String gtfsTripId);

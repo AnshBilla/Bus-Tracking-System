@@ -14,7 +14,7 @@ import com.smartRahi.SmartRahi.Services.TripService;
 import com.smartRahi.SmartRahi.mapper.TripMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,6 +29,7 @@ public class TripServiceImpl implements TripService {
     private final DriverRepository driverRepository;
 
     @Override
+    @Transactional
     public TripResponse createTrip(TripRequest request) {
         Route route = routeRepository.findByRouteId(request.getRouteId())
                 .orElseThrow(() -> new RuntimeException("Route not found"));
@@ -43,12 +44,15 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TripResponse getTripById(UUID tripId) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
         return TripMapper.toResponse(trip);
     }
+
     @Override
+    @Transactional(readOnly = true)
     public TripResponse getTripByGtfsId(String gtfsTripId) {
         Trip trip = tripRepository.findByGtfsTripId(gtfsTripId)
                 .orElseThrow(() -> new RuntimeException("Trip with GTFS ID not found"));
@@ -56,6 +60,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TripResponse> getAllTrips() {
         return tripRepository.findAll().stream()
                 .map(TripMapper::toResponse)

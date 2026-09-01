@@ -16,5 +16,7 @@ public class TripResponse {
     private String busId;
     private String busNumber;
     private String driverId;
-    private String stops;
+    private String stops; // JSONB stops if provided
+    private java.util.Map<String, Object> route; // Full route info
+    private java.util.List<java.util.Map<String, Object>> tripStops; // Relational tripStops if JSON is empty
 }
