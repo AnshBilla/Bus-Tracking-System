@@ -214,4 +214,41 @@ public class BusRealtimeServiceImpl implements BusRealtimeService {
         log.info("Updated location for bus {} (via GPS Module)", busBusinessId);
     }
 
+    @Override
+    @Transactional
+    public void updateBusLocationFromPassenger(String tripId, LocationUpdateRequest request) {
+        Trip currentTrip = null;
+        try {
+            UUID uuid = UUID.fromString(tripId);
+            currentTrip = tripRepository.findById(uuid).orElse(null);
+        } catch (IllegalArgumentException e) {
+            currentTrip = tripRepository.findByGtfsTripId(tripId).orElse(null);
+        }
+
+        if (currentTrip == null) {
+            log.warn("Trip not found for crowd-sourced location update: {}", tripId);
+            throw new RuntimeException("Trip not found with ID: " + tripId);
+        }
+
+        LocalDateTime updateTimeLocal = (request.getTimestamp() != null) ? request.getTimestamp() : LocalDateTime.now();
+        currentTrip.setCurrentLat(request.getLatitude());
+        currentTrip.setCurrentLon(request.getLongitude());
+        if (request.getSpeed() != null) currentTrip.setSpeed(request.getSpeed());
+        if (request.getHeading() != null) currentTrip.setHeading(request.getHeading());
+        currentTrip.setLastLocationUpdate(updateTimeLocal);
+        
+        Bus bus = currentTrip.getBus();
+        if (bus != null) {
+            bus.setCurrentLat(request.getLatitude());
+            bus.setCurrentLon(request.getLongitude());
+            if (request.getSpeed() != null) bus.setSpeed(request.getSpeed());
+            if (request.getHeading() != null) bus.setHeading(request.getHeading());
+            bus.setLastLocationUpdate(updateTimeLocal.toInstant(ZoneOffset.UTC));
+            busRepository.save(bus);
+        }
+
+        tripRepository.save(currentTrip);
+        log.info("Crowd-sourced location updated for trip {}", tripId);
+    }
+
 }

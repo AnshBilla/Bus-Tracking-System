@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +46,19 @@ public class PassengerController {
     ) {
         List<LiveBusResponse> liveBuses = busRealtimeService.getActiveBuses(routeId);
         return ResponseEntity.ok(liveBuses);
+    }
+
+    /**
+     * Endpoint for passengers to crowd-source bus location.
+     */
+    @PostMapping("/buses/live/location")
+    @PreAuthorize("hasAnyRole('PASSENGER', 'GUEST')")
+    public ResponseEntity<?> updateLocationFromPassenger(
+            @RequestParam String tripId,
+            @RequestBody com.smartRahi.SmartRahi.DTO.request.LocationUpdateRequest request
+    ) {
+        busRealtimeService.updateBusLocationFromPassenger(tripId, request);
+        return ResponseEntity.ok().build();
     }
 
     /**

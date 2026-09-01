@@ -15,5 +15,11 @@ public interface BusRealtimeService {
     void updateBusLocation(String staffUsername, LocationUpdateRequest request);
     List<LiveBusResponse> getActiveBuses(String routeBusinessId);
     void updateLocationByBusId(String busBusinessId, LocationUpdateRequest request);
-
+    
+    /**
+     * Updates the location and status of the trip using crowd-sourced data from a passenger.
+     * @param tripId The GTFS Trip ID or UUID.
+     * @param request The location data received from passenger.
+     */
+    void updateBusLocationFromPassenger(String tripId, LocationUpdateRequest request);
 }
