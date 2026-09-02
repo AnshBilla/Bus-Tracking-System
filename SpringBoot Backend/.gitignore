@@ -47,7 +47,7 @@ target/
 *.log
 
 # Sensitive files
-application.properties
+
 .env
 
 # IDE files
