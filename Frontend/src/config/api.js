@@ -1,5 +1,7 @@
 // src/config/api.js
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+let envUrl = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+if (envUrl.endsWith('/')) envUrl = envUrl.slice(0, -1);
+const BASE_URL = envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
 export default BASE_URL;
 // INSIDE config/api.js (Replace your fetchWithAuth function)
 
