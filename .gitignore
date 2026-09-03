@@ -14,7 +14,6 @@ build/
 
 # Sensitive files
 application-example.properties
-.env
 *.env
 
 # Node
@@ -45,7 +44,6 @@ node_modules/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
 
 # OS files
 .DS_Store
@@ -69,3 +67,4 @@ Thumbs.db
 # virtual machine crash logs
 hs_err_pid*
 replay_pid*
+config.bat
